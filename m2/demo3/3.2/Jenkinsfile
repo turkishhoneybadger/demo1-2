@@ -1,6 +1,5 @@
 pipeline {
    agent any
-<<<<<<< HEAD
     environment {
       RELEASE='20.04'
     }
@@ -11,6 +10,12 @@ pipeline {
             }
             steps {
                echo "Building release ${RELEASE} with log level ${LOG_LEVEL}..."
+               sh 'chmod +x m2/demo3/build.sh'
+               withCredentials([string(credentialsId: 'an-api-key', variable: 'API_KEY')]) {
+                  sh '''
+                     ./m2/demo3/build.sh
+                  '''
+               }
             }
         }
         stage('Test') {
@@ -23,26 +28,8 @@ pipeline {
    post {
       success {
          archiveArtifacts 'test-results.txt'
+         slackSend channel: '#builds',
+                   message: "Release ${env.RELEASE}, success: ${currentBuild.fullDisplayName}."
       }
    }
 }
-=======
-   
-   environment {
-       DEMO='1.3'
-   }
-
-   stages {
-      stage('stage-1') {
-         steps {
-            echo "This is build number $BUILD_NUMBER of demo $DEMO"
-            sh '''
-               echo "Using a multi-line shell step"
-               chmod +x test.sh
-               ./test.sh
-            '''
-         }
-      }
-   }
-}
->>>>>>> f692b729a4ace4e6daf312c2a69d985858207102
